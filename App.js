@@ -1,20 +1,35 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { FlatList, ScrollView, Text, View } from "react-native";
+import tailwind from "tailwind-rn";
+import Post from "./src/components/Post";
+import {SafeAreaProvider, SafeAreaView} from 'react-native-safe-area-context';
+import FeedScreen from "./src/screens/FeedScreen";
+import CreatePostScreen from "./src/screens/CreatePostScreen";
+import Navigation from "./src/navigation/Navigation";
+import { Amplify, Auth } from "aws-amplify";
+import awsconfig from "./src/aws-exports";
+import { withAuthenticator } from 'aws-amplify-react-native';
+import { useEffect, useState } from "react";
 
-export default function App() {
+const App = () => {
+
+  const [authUser, setAuthUser] = useState(null);
+
+useEffect(() => {
+  Auth.currentAuthenticatedUser().then(setAuthUser);
+}, []);
+
+console.log(authUser?.attributes);
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <SafeAreaProvider>
+      <View style={tailwind("flex-1")}>
+        <Navigation />
+      </View>
+    </SafeAreaProvider> 
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+Amplify.configure({ ...awsconfig, Analytics: { disabled: true } });
+
+
+export default withAuthenticator(App);
